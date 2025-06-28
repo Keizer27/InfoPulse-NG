@@ -1,68 +1,94 @@
-// Firebase config
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// Firebase Config
 const firebaseConfig = {
   apiKey: "Aktxsysnet2v0g8bq3aTmdTm0xy9hmgz",
   authDomain: "infopublic-5x9fb.firebaseapp.com",
   projectId: "infopublic-5x9fb",
   storageBucket: "infopublic-5x9fb.appspot.com",
   messagingSenderId: "5689711e991",
-  appId: "1:5689711e991:web:abc123def456",
+  appId: "1:5689711e991:web:abc123def456"
 };
 
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const container = document.getElementById('articles-container');
+// Selectors
+const articlesContainer = document.getElementById("articlesContainer");
+const categoryFilter = document.getElementById("categoryFilter");
+const searchInput = document.getElementById("searchInput");
+const noResults = document.getElementById("noResults");
 
 // Load Articles
 async function loadArticles() {
+  articlesContainer.innerHTML = "<p class='loading'>Loading...</p>";
+
   const querySnapshot = await getDocs(collection(db, "articles"));
+  const articles = [];
+  
   querySnapshot.forEach((doc) => {
     const data = doc.data();
-    const article = document.createElement('div');
-    article.classList.add('article');
-
-    // Optional image
-    if (data.imageUrl) {
-      const img = document.createElement('img');
-      img.src = data.imageUrl;
-      img.alt = data.title || "Article Image";
-      img.className = "article-image";
-      article.appendChild(img);
-    }
-
-    // Title
-    const title = document.createElement('h2');
-    title.textContent = data.title || "Untitled";
-    title.className = "article-title";
-    article.appendChild(title);
-
-    // Keyword tag
-    if (data.keyword) {
-      const keyword = document.createElement('p');
-      keyword.textContent = `🔍 Keyword: ${data.keyword}`;
-      keyword.className = "article-keyword";
-      article.appendChild(keyword);
-    }
-
-    // Category
-    if (data.category) {
-      const category = document.createElement('p');
-      category.textContent = `📂 Category: ${data.category}`;
-      category.className = "article-category";
-      article.appendChild(category);
-    }
-
-    // Content
-    const content = document.createElement('p');
-    content.innerHTML = data.content || "No content available.";
-    content.className = "article-content";
-    article.appendChild(content);
-
-    container.appendChild(article);
+    articles.push({
+      title: data.title,
+      content: data.content,
+      category: data.category,
+      date: data.date,
+      imageUrl: data.imageUrl || "",
+      keywords: (data.keywords || "").toLowerCase()
+    });
   });
+
+  renderArticles(articles);
+
+  // Filter on input
+  searchInput.addEventListener("input", () => filterArticles(articles));
+  categoryFilter.addEventListener("change", () => filterArticles(articles));
+}
+
+// Render Articles
+function renderArticles(articles) {
+  articlesContainer.innerHTML = "";
+  if (articles.length === 0) {
+    noResults.classList.remove("hidden");
+    return;
+  }
+  noResults.classList.add("hidden");
+
+  articles.forEach((article) => {
+    const card = document.createElement("div");
+    card.className = "article-card";
+    card.innerHTML = `
+      ${article.imageUrl ? `<img src="${article.imageUrl}" alt="Article Image">` : ''}
+      <div class="article-content">
+        <h3>${article.title}</h3>
+        <p>${article.content.substring(0, 120)}...</p>
+        <div class="meta-info">
+          <span>${article.category}</span>
+          <span>${article.date}</span>
+        </div>
+      </div>
+    `;
+    articlesContainer.appendChild(card);
+  });
+}
+
+// Filter Articles
+function filterArticles(allArticles) {
+  const category = categoryFilter.value.toLowerCase();
+  const keyword = searchInput.value.toLowerCase();
+
+  const filtered = allArticles.filter((article) => {
+    const matchesCategory = category === "all" || article.category.toLowerCase() === category;
+    const matchesKeyword =
+      article.title.toLowerCase().includes(keyword) ||
+      article.content.toLowerCase().includes(keyword) ||
+      article.keywords.includes(keyword);
+    return matchesCategory && matchesKeyword;
+  });
+
+  renderArticles(filtered);
 }
 
 loadArticles();

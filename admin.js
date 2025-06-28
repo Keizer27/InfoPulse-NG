@@ -1,63 +1,90 @@
-import { db, auth } from "./firebaseConfig.js";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-lite.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Auth check
+// Firebase config
+const firebaseConfig = {
+  apiKey: "Aktxsysnet2v0g8bq3aTmdTm0xy9hmgz",
+  authDomain: "infopublic-5x9fb.firebaseapp.com",
+  projectId: "infopublic-5x9fb",
+  storageBucket: "infopublic-5x9fb.appspot.com",
+  messagingSenderId: "5689711e991",
+  appId: "1:5689711e991:web:abc123def456"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Elements
+const form = document.getElementById("articleForm");
+const logoutBtn = document.getElementById("logoutBtn");
+const userStatus = document.getElementById("userStatus");
+
+// Authentication check (only your UID should pass)
+const allowedUID = "sUSNweuc5ZYGvQu5hkMYOcdNP0m1";
 onAuthStateChanged(auth, (user) => {
-  if (!user || user.uid !== "sUSNweuc5ZYGvQu5hkMYOcdNP0m1") {
+  if (!user || user.uid !== allowedUID) {
     window.location.href = "login.html";
+  } else {
+    userStatus.textContent = `Logged in as ${user.email}`;
   }
 });
 
-// Handle logout
-document.getElementById("logoutBtn").addEventListener("click", () => {
+// Logout
+logoutBtn.addEventListener("click", () => {
   signOut(auth).then(() => {
     window.location.href = "login.html";
   });
 });
 
-// Submit article
-document.getElementById("postForm").addEventListener("submit", async (e) => {
+// Handle form submission
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const title = document.getElementById("title").value.trim();
   const content = document.getElementById("content").value.trim();
-  const niche = document.getElementById("niche").value;
-  const keywords = document.getElementById("keywords").value.trim().split(",").map(k => k.trim());
-  const imageFile = document.getElementById("imageUpload").files[0];
+  const category = document.getElementById("category").value;
+  const keywords = document.getElementById("keywords").value.trim().toLowerCase();
+  const imageFile = document.getElementById("image").files[0];
 
-  if (!title || !content || !niche) {
-    alert("Please fill all required fields.");
+  if (!title || !content || !category) {
+    alert("Please fill in all required fields.");
     return;
   }
 
   let imageUrl = "";
+
   if (imageFile) {
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      imageUrl = reader.result;
-      await saveArticle();
-    };
-    reader.readAsDataURL(imageFile);
-  } else {
-    await saveArticle();
+    imageUrl = await readImageAsDataURL(imageFile);
   }
 
-  async function saveArticle() {
-    try {
-      await addDoc(collection(db, "articles"), {
-        title,
-        content,
-        niche,
-        keywords,
-        imageUrl,
-        createdAt: serverTimestamp()
-      });
-      alert("Article posted!");
-      document.getElementById("postForm").reset();
-    } catch (error) {
-      console.error("Error saving article:", error);
-      alert("Failed to post article.");
-    }
+  try {
+    await addDoc(collection(db, "articles"), {
+      title,
+      content,
+      category,
+      keywords,
+      imageUrl,
+      date: new Date().toLocaleDateString(),
+      timestamp: serverTimestamp()
+    });
+
+    alert("Article posted successfully!");
+    form.reset();
+  } catch (err) {
+    console.error("Error posting article:", err);
+    alert("Failed to post article.");
   }
 });
+
+// Convert image to base64 Data URL (no saving to Firebase Storage)
+function readImageAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}

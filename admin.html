@@ -1,0 +1,38 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - InfoPublic</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>📋 Post New Article</h1>
+    <nav>
+      <a href="index.html">← Back to Home</a>
+      <button id="logout-btn">Logout</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="form-box">
+      <form id="post-form">
+        <input type="text" id="title" placeholder="Article Title" required />
+        <input type="text" id="category" placeholder="Category (e.g. Health, Tech, Finance)" required />
+        <textarea id="content" rows="15" placeholder="Write your article here..." required></textarea>
+        <button type="submit">📤 Publish</button>
+      </form>
+      <p id="post-message" class="success-msg"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 InfoPublic. Admin Panel</p>
+  </footer>
+
+  <script type="module" src="firebaseConfig.js"></script>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

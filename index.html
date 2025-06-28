@@ -1,133 +1,422 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Blog</title>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    #adminLogin, #postEditor { background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-    input, textarea, button { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
-    button { background: #4285f4; color: white; border: none; cursor: pointer; }
-    .post { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .post button { width: auto; background: #ff4444; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Blog</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --danger: #f72585;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Auth Section */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-header h2 {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-header p {
+            color: var(--gray);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a56d4;
+            transform: translateY(-2px);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Admin Dashboard */
+        .dashboard {
+            display: none;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .dashboard-title {
+            font-size: 1.75rem;
+            color: var(--dark);
+        }
+        
+        .btn-logout {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-logout:hover {
+            background-color: #e5177b;
+        }
+        
+        /* Post Editor */
+        .editor-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .editor-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        /* Posts Feed */
+        .posts-title {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .post-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .post-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .post-content {
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .post-date {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-3 {
+            margin-top: 1rem;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .auth-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Admin Login -->
-  <div id="adminLogin">
-    <h2>Admin Login</h2>
-    <input type="email" id="email" placeholder="Your Email">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-  </div>
+    <div class="container">
+        <!-- Auth Section (Shows when logged out) -->
+        <div id="authSection" class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>Admin Login</h2>
+                    <p>Enter your credentials to access the dashboard</p>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••">
+                </div>
+                <button id="loginBtn" class="btn btn-primary btn-block" onclick="login()">Sign In</button>
+                <div id="loginError" class="text-center mt-3" style="color: var(--danger); display: none;"></div>
+            </div>
+        </div>
 
-  <!-- Post Editor (Shows after login) -->
-  <div id="postEditor" style="display:none;">
-    <h2>Create Post</h2>
-    <input type="text" id="postTitle" placeholder="Title">
-    <textarea id="postContent" placeholder="Content" rows="5"></textarea>
-    <button onclick="publishPost()">Publish</button>
-    <button onclick="logout()" style="background: #666;">Logout</button>
-  </div>
+        <!-- Dashboard (Shows when logged in) -->
+        <div id="dashboard" class="dashboard">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Admin Dashboard</h1>
+                <button class="btn btn-logout" onclick="logout()">Logout</button>
+            </div>
 
-  <!-- Public Posts Display -->
-  <div id="posts">
-    <h1>Latest Posts</h1>
-    <!-- Posts load here -->
-  </div>
+            <!-- Post Editor -->
+            <div class="editor-card">
+                <h2 class="editor-title">Create New Post</h2>
+                <div class="form-group">
+                    <input type="text" id="postTitle" class="form-control" placeholder="Post Title">
+                </div>
+                <div class="form-group">
+                    <textarea id="postContent" class="form-control" rows="5" placeholder="Write your content here..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="publishPost()">Publish Post</button>
+            </div>
 
-  <script>
-    // Your Firebase config (from your screenshot)
-    const firebaseConfig = {
-      apiKey: "Aktxs.ysnet2v0g8bq3 (Unintr4)aTmdTm0xy9hmgz",
-      authDomain: "infopublic-5x9fb.firebaseapp.com",
-      projectId: "infopublic-5x9fb",
-      storageBucket: "",
-      messagingSenderId: "",
-      appId: ""
-    };
+            <!-- Posts Feed -->
+            <h2 class="posts-title">Published Posts</h2>
+            <div id="postsFeed"></div>
+        </div>
+    </div>
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    <script>
+        // Firebase Configuration (Replace with your actual config)
+        const firebaseConfig = {
+            apiKey: "Aktxsysnet2v0g8bq3aTmdTm0xy9hmgz",
+            authDomain: "infopublic-5x9fb.firebaseapp.com",
+            projectId: "infopublic-5x9fb",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
+        };
 
-    // Login Function
-    function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(() => {
-          document.getElementById("adminLogin").style.display = "none";
-          document.getElementById("postEditor").style.display = "block";
-          loadPosts();
-        })
-        .catch(error => alert("Error: " + error.message));
-    }
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    // Logout Function
-    function logout() {
-      firebase.auth().signOut()
-        .then(() => {
-          document.getElementById("adminLogin").style.display = "block";
-          document.getElementById("postEditor").style.display = "none";
+        // DOM Elements
+        const authSection = document.getElementById('authSection');
+        const dashboard = document.getElementById('dashboard');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        // Auth State Listener
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is logged in
+                authSection.style.display = 'none';
+                dashboard.style.display = 'block';
+                loadPosts();
+            } else {
+                // User is logged out
+                authSection.style.display = 'flex';
+                dashboard.style.display = 'none';
+            }
         });
-    }
 
-    // Publish Post
-    function publishPost() {
-      const title = document.getElementById("postTitle").value;
-      const content = document.getElementById("postContent").value;
-      
-      db.collection("posts").add({
-        title: title,
-        content: content,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        alert("Posted!");
-        document.getElementById("postTitle").value = "";
-        document.getElementById("postContent").value = "";
-        loadPosts();
-      })
-      .catch(error => alert("Error: " + error));
-    }
+        // Login Function
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+            loginError.style.display = 'none';
 
-    // Delete Post
-    function deletePost(postId) {
-      if (confirm("Delete this post?")) {
-        db.collection("posts").doc(postId).delete()
-          .then(() => loadPosts())
-          .catch(error => alert("Error: " + error));
-      }
-    }
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    // Login success handled by auth state listener
+                })
+                .catch((error) => {
+                    loginError.textContent = error.message;
+                    loginError.style.display = 'block';
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                });
+        }
 
-    // Load Posts
-    function loadPosts() {
-      db.collection("posts")
-        .orderBy("timestamp", "desc")
-        .get()
-        .then((querySnapshot) => {
-          let html = "";
-          querySnapshot.forEach((doc) => {
-            const post = doc.data();
-            html += `
-              <div class="post">
-                <h3>${post.title}</h3>
-                <p>${post.content}</p>
-                <small>${post.timestamp?.toDate().toLocaleString()}</small>
-                <button onclick="deletePost('${doc.id}')">Delete</button>
-              </div>
-            `;
-          });
-          document.getElementById("posts").innerHTML = html;
-        });
-    }
+        // Logout Function
+        function logout() {
+            firebase.auth().signOut();
+        }
 
-    // Load posts on startup
-    window.onload = loadPosts;
-  </script>
+        // Publish Post
+        function publishPost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+
+            if (!title || !content) {
+                alert('Please fill in both title and content');
+                return;
+            }
+
+            db.collection('posts').add({
+                title: title,
+                content: content,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                document.getElementById('postTitle').value = '';
+                document.getElementById('postContent').value = '';
+                loadPosts();
+            })
+            .catch((error) => {
+                console.error('Error adding post: ', error);
+            });
+        }
+
+        // Load Posts
+        function loadPosts() {
+            db.collection('posts')
+                .orderBy('timestamp', 'desc')
+                .get()
+                .then((querySnapshot) => {
+                    let postsHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const post = doc.data();
+                        postsHTML += `
+                            <div class="post-card">
+                                <h3 class="post-title">${post.title}</h3>
+                                <p class="post-content">${post.content}</p>
+                                <div class="post-meta">
+                                    <span class="post-date">${post.timestamp?.toDate().toLocaleString()}</span>
+                                    <div class="post-actions">
+                                        <button class="btn btn-sm btn-danger" onclick="deletePost('${doc.id}')">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('postsFeed').innerHTML = postsHTML;
+                });
+        }
+
+        // Delete Post
+        function deletePost(postId) {
+            if (confirm('Are you sure you want to delete this post?')) {
+                db.collection('posts').doc(postId).delete()
+                    .then(() => {
+                        loadPosts();
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting post: ', error);
+                    });
+            }
+        }
+    </script>
 </body>
 </html>

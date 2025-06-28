@@ -1,38 +1,80 @@
-<!-- index.html --><!DOCTYPE html><html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InfoPulseNG Explore Trending Topics</title>
+  <title>InfoPulseNG</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-  <script src="firebaseConfig.js" defer></script>
-  <script src="public.js" defer></script>
-</head>
-<body>
-  <header class="navbar">
-    <div class="logo">InfoPulseNG</div>
-    <nav class="menu">
-      <ul>
-        <li><a href="#tech">Tech</a></li>
-        <li><a href="#finance">Finance</a></li>
-        <li><a href="#health">Health</a></li>
-        <li><a href="#lifestyle">Lifestyle</a></li>
-        <li><a href="#education">Education</a></li>
-        <li><a href="#ecommerce">E-commerce</a></li>
-        <li><a href="#latest-tech">Latest Tech</a></li>
-      </ul>
-    </nav>
-    <div class="hamburger" onclick="toggleLoginForm()">☰</div>
-  </header>  <section id="loginPanel" class="hidden login-panel">
-    <input type="email" id="adminEmail" placeholder="Email" />
-    <input type="password" id="adminPassword" placeholder="Password" />
-    <button onclick="adminLogin()">Login</button>
-  </section>  <main class="articles" id="articlesContainer">
-    <!-- Articles will load here -->
-  </main>  <footer>
-    <p>&copy; 2025 InfoPulseNG. All rights reserved.</p>
-  </footer>
-</body>
-</html>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1f2937',
+            accent: '#4f46e5'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+</head><body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans">
+  <!-- Navbar -->
+  <header class="w-full shadow-md fixed top-0 left-0 bg-white dark:bg-gray-800 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="text-xl font-bold text-accent">InfoPulseNG</h1>
+      <button id="menu-btn" class="block lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <nav id="menu" class="hidden lg:flex space-x-6">
+        <a href="#" class="hover:text-accent">Home</a>
+        <a href="#" class="hover:text-accent">Tech</a>
+        <a href="#" class="hover:text-accent">Finance</a>
+        <a href="#" class="hover:text-accent">Health</a>
+        <a href="#" class="hover:text-accent">Lifestyle</a>
+        <a href="#" class="hover:text-accent">Education</a>
+        <a href="#" class="hover:text-accent">E-Commerce</a>
+        <a href="#" class="hover:text-accent">Latest Tech</a>
+        <a href="#login" class="hover:text-accent">Admin Login</a>
+      </nav>
+    </div>
+  </header>  <!-- Hero -->  <section class="pt-24 pb-12 px-4 text-center">
+    <h2 class="text-4xl font-bold mb-4">Welcome to InfoPulseNG</h2>
+    <p class="text-lg text-gray-600 dark:text-gray-300">Stay updated with the latest in Tech, Finance, Health, Lifestyle & More.</p>
+  </section>  <!-- Categories -->  <section class="container mx-auto px-4 py-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:scale-105 transition-transform">
+      <h3 class="text-xl font-semibold mb-2">Technology</h3>
+      <p>Explore the latest innovations and gadgets shaping the future.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:scale-105 transition-transform">
+      <h3 class="text-xl font-semibold mb-2">Finance</h3>
+      <p>Insights on saving, investing, and navigating the financial world.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:scale-105 transition-transform">
+      <h3 class="text-xl font-semibold mb-2">Health</h3>
+      <p>Tips and guides to stay mentally and physically fit.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:scale-105 transition-transform">
+      <h3 class="text-xl font-semibold mb-2">Lifestyle</h3>
+      <p>Explore wellness, fashion, travel, and daily life inspiration.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:scale-105 transition-transform">
+      <h3 class="text-xl font-semibold mb-2">Education</h3>
+      <p>Boost your knowledge with academic and self-learning content.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:scale-105 transition-transform">
+      <h3 class="text-xl font-semibold mb-2">E-Commerce</h3>
+      <p>News and guides on digital stores, buying and selling online.</p>
+    </div>
+  </section>  <!-- Footer -->  <footer class="bg-gray-100 dark:bg-gray-800 text-center py-4">
+    <p class="text-sm text-gray-500 dark:text-gray-400">&copy; 2025 InfoPulseNG. All rights reserved.</p>
+  </footer>  <script>
+    // Toggle nav
+    document.getElementById("menu-btn").addEventListener("click", () => {
+      const menu = document.getElementById("menu");
+      menu.classList.toggle("hidden");
+    });
+  </script></body></html>

@@ -1,33 +1,38 @@
-<!-- index.html -->
-<!DOCTYPE html>
-<html lang="en">
+<!-- index.html --><!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>InfoPulseNG - Home</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InfoPulseNG Explore Trending Topics</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="firebaseConfig.js" defer></script>
+  <script src="public.js" defer></script>
 </head>
 <body>
-  <header>
-    <h1>📚 InfoPulseNG</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="login.html">Admin Login</a>
+  <header class="navbar">
+    <div class="logo">InfoPulseNG</div>
+    <nav class="menu">
+      <ul>
+        <li><a href="#tech">Tech</a></li>
+        <li><a href="#finance">Finance</a></li>
+        <li><a href="#health">Health</a></li>
+        <li><a href="#lifestyle">Lifestyle</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#ecommerce">E-commerce</a></li>
+        <li><a href="#latest-tech">Latest Tech</a></li>
+      </ul>
     </nav>
-  </header>
-
-  <main>
-    <section id="articles">
-      <h2>Latest Articles</h2>
-      <div id="articles-container" class="article-grid"></div>
-    </section>
-  </main>
-
-  <footer>
+    <div class="hamburger" onclick="toggleLoginForm()">☰</div>
+  </header>  <section id="loginPanel" class="hidden login-panel">
+    <input type="email" id="adminEmail" placeholder="Email" />
+    <input type="password" id="adminPassword" placeholder="Password" />
+    <button onclick="adminLogin()">Login</button>
+  </section>  <main class="articles" id="articlesContainer">
+    <!-- Articles will load here -->
+  </main>  <footer>
     <p>&copy; 2025 InfoPulseNG. All rights reserved.</p>
   </footer>
-
-  <script type="module" src="firebaseConfig.js"></script>
-  <script type="module" src="public.js"></script>
 </body>
 </html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Blog</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .auth-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .error {
+            color: #f44336;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <h2>Admin Login</h2>
+        <input type="email" id="email" placeholder="Email" value="akinpeliusman2018@gmail.com">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div id="loginError" class="error"></div>
+    </div>
+
+    <script>
+        // CORRECT Firebase Config (using your actual project details)
+        const firebaseConfig = {
+            apiKey: "Aktxsysnet2v0g8bq3aTmdTm0xy9hmgz",
+            authDomain: "infopublic-5x9fb.firebaseapp.com",
+            projectId: "infopublic-5x9fb",
+            storageBucket: "infopublic-5x9fb.appspot.com",
+            messagingSenderId: "5689711e991",
+            appId: "1:5689711e991:web:abc123def456"
+        };
+
+        // Initialize Firebase
+        try {
+            const app = firebase.initializeApp(firebaseConfig);
+            console.log("Firebase initialized successfully!");
+            
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // Login function
+            function login() {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const errorElement = document.getElementById('loginError');
+                
+                errorElement.textContent = '';
+                
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Redirect to admin dashboard
+                        window.location.href = "admin.html";
+                    })
+                    .catch((error) => {
+                        console.error("Login error:", error);
+                        errorElement.textContent = getErrorMessage(error.code);
+                    });
+            }
+
+            // Better error messages
+            function getErrorMessage(errorCode) {
+                const messages = {
+                    "auth/invalid-email": "Invalid email address",
+                    "auth/user-not-found": "No account found with this email",
+                    "auth/wrong-password": "Incorrect password",
+                    "auth/too-many-requests": "Too many attempts. Try again later."
+                };
+                return messages[errorCode] || "Login failed. Please try again.";
+            }
+
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            document.getElementById('loginError').textContent = 
+                "System error. Please try again later.";
+        }
+    </script>
+</body>
+</html>

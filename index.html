@@ -2,31 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>InfoPulseNG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InfoPulseNG - Smart Insights for Every Niche</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
 </head>
 <body>
-  <header>
-    <h1>InfoPulseNG</h1>
-    <div class="menu-toggle">&#9776;</div>
-    <nav class="nav-links">
-      <a href="#tech">Tech</a>
-      <a href="#finance">Finance</a>
-      <a href="#health">Health</a>
-      <a href="#lifestyle">Lifestyle</a>
-      <a href="#education">Education</a>
-      <a href="#ecommerce">E-Commerce</a>
-      <a href="#latest-tech">Latest Tech</a>
-      <a href="login.html">🔒 Admin</a>
-    </nav>
+  <!-- Navbar -->
+  <header class="navbar">
+    <h1 class="logo">InfoPulse<span>NG</span></h1>
+    <div class="nav-right">
+      <select id="categoryFilter">
+        <option value="all">All</option>
+        <option value="tech">Tech</option>
+        <option value="finance">Finance</option>
+        <option value="health">Health</option>
+        <option value="lifestyle">Lifestyle</option>
+        <option value="education">Education</option>
+        <option value="ecommerce">E-commerce</option>
+        <option value="latest-tech">Latest Tech</option>
+      </select>
+      <button id="darkModeToggle">🌙</button>
+      <button class="hamburger" onclick="location.href='login.html'">☰</button>
+    </div>
   </header>
 
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>Welcome to InfoPulseNG</h2>
+    <p>Smart content for smart Nigerians. Stay updated across Tech, Finance, Health, Lifestyle, and more.</p>
+  </section>
+
+  <!-- Articles Container -->
   <main>
-    <div id="articles-container"></div>
+    <div id="articlesContainer" class="articles-grid">
+      <!-- Articles will be dynamically injected here -->
+    </div>
   </main>
 
-  <footer>© 2025 InfoPulseNG. All rights reserved.</footer>
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 InfoPulseNG. All rights reserved.</p>
+  </footer>
+
   <script src="public.js"></script>
 </body>
 </html>

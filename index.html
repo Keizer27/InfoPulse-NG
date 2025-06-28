@@ -1,19 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Infopulse | Articles</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Admin Blog</title>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <style>
+    #postEditor, #posts { margin-top: 20px; }
+    .post { border-bottom: 1px solid #ccc; padding: 10px; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Infopulse Articles</h1>
-  </header>
-  <main id="article-list">
-    <!-- Articles will be loaded here -->
-  </main>
-  <script src="firebase-config.js"></script>
-  <script src="scripts/public.js"></script>
+  <!-- Admin Login -->
+  <div id="adminLogin">
+    <h2>Admin Login</h2>
+    <input type="email" id="email" placeholder="Your Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- Post Editor (Shows after login) -->
+  <div id="postEditor" style="display:none;">
+    <h2>Create Post</h2>
+    <input type="text" id="postTitle" placeholder="Title">
+    <textarea id="postContent" placeholder="Content"></textarea>
+    <button onclick="publishPost()">Publish</button>
+  </div>
+
+  <!-- Public Posts Display -->
+  <div id="posts">
+    <h1>Latest Posts</h1>
+    <!-- Posts load here -->
+  </div>
+
+  <script>
+    // Your EXACT Firebase config from the screenshot
+    const firebaseConfig = {
+      apiKey: "Aktxs.ysnet2v0g8bq3 (Unintr4)aTmdTm0xy9hmgz",
+      authDomain: "infopublic-5x9fb.firebaseapp.com",
+      projectId: "infopublic-5x9fb",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Admin Login
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(() => {
+          document.getElementById("adminLogin").style.display = "none";
+          document.getElementById("postEditor").style.display = "block";
+        })
+        .catch(error => alert("Error: " + error.message));
+    }
+
+    // Publish Post
+    function publishPost() {
+      const title = document.getElementById("postTitle").value;
+      const content = document.getElementById("postContent").value;
+      
+      db.collection("posts").add({
+        title: title,
+        content: content,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => alert("Post published!"))
+      .catch(error => alert("Error: " + error));
+    }
+
+    // Load Posts
+    function loadPosts() {
+      db.collection("posts")
+        .orderBy("timestamp", "desc")
+        .get()
+        .then((querySnapshot) => {
+          let html = "";
+          querySnapshot.forEach((doc) => {
+            const post = doc.data();
+            html += `
+              <div class="post">
+                <h3>${post.title}</h3>
+                <p>${post.content}</p>
+                <small>${post.timestamp?.toDate().toLocaleString()}</small>
+              </div>
+            `;
+          });
+          document.getElementById("posts").innerHTML = html;
+        });
+    }
+
+    // Load posts on startup
+    window.onload = loadPosts;
+  </script>
 </body>
 </html>

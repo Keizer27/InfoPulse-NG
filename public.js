@@ -1,42 +1,68 @@
-import { getFirestore, collection, getDocs, query, orderBy } from "firebase/firestore";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "./firebaseConfig.js";
+// Firebase config
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Initialize Firebase App and Firestore
+const firebaseConfig = {
+  apiKey: "Aktxsysnet2v0g8bq3aTmdTm0xy9hmgz",
+  authDomain: "infopublic-5x9fb.firebaseapp.com",
+  projectId: "infopublic-5x9fb",
+  storageBucket: "infopublic-5x9fb.appspot.com",
+  messagingSenderId: "5689711e991",
+  appId: "1:5689711e991:web:abc123def456",
+};
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Load and display articles
+const container = document.getElementById('articles-container');
+
+// Load Articles
 async function loadArticles() {
-  const container = document.getElementById("articlesContainer");
-  container.innerHTML = "<p>Loading articles...</p>";
+  const querySnapshot = await getDocs(collection(db, "articles"));
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const article = document.createElement('div');
+    article.classList.add('article');
 
-  try {
-    const q = query(collection(db, "articles"), orderBy("timestamp", "desc"));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      container.innerHTML = "<p>No articles found.</p>";
-      return;
+    // Optional image
+    if (data.imageUrl) {
+      const img = document.createElement('img');
+      img.src = data.imageUrl;
+      img.alt = data.title || "Article Image";
+      img.className = "article-image";
+      article.appendChild(img);
     }
 
-    let html = "";
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      html += `
-        <div class="article-card">
-          <h2>${data.title}</h2>
-          <p>${data.content.replace(/\n/g, "<br>")}</p>
-        </div>
-      `;
-    });
+    // Title
+    const title = document.createElement('h2');
+    title.textContent = data.title || "Untitled";
+    title.className = "article-title";
+    article.appendChild(title);
 
-    container.innerHTML = html;
-  } catch (error) {
-    console.error("Error loading articles:", error);
-    container.innerHTML = "<p>Error loading articles.</p>";
-  }
+    // Keyword tag
+    if (data.keyword) {
+      const keyword = document.createElement('p');
+      keyword.textContent = `🔍 Keyword: ${data.keyword}`;
+      keyword.className = "article-keyword";
+      article.appendChild(keyword);
+    }
+
+    // Category
+    if (data.category) {
+      const category = document.createElement('p');
+      category.textContent = `📂 Category: ${data.category}`;
+      category.className = "article-category";
+      article.appendChild(category);
+    }
+
+    // Content
+    const content = document.createElement('p');
+    content.innerHTML = data.content || "No content available.";
+    content.className = "article-content";
+    article.appendChild(content);
+
+    container.appendChild(article);
+  });
 }
 
-// Run on page load
 loadArticles();

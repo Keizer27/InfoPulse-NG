@@ -6,8 +6,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
   <style>
-    #postEditor, #posts { margin-top: 20px; }
-    .post { border-bottom: 1px solid #ccc; padding: 10px; }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    #adminLogin, #postEditor { background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    input, textarea, button { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
+    button { background: #4285f4; color: white; border: none; cursor: pointer; }
+    .post { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .post button { width: auto; background: #ff4444; }
   </style>
 </head>
 <body>
@@ -23,8 +27,9 @@
   <div id="postEditor" style="display:none;">
     <h2>Create Post</h2>
     <input type="text" id="postTitle" placeholder="Title">
-    <textarea id="postContent" placeholder="Content"></textarea>
+    <textarea id="postContent" placeholder="Content" rows="5"></textarea>
     <button onclick="publishPost()">Publish</button>
+    <button onclick="logout()" style="background: #666;">Logout</button>
   </div>
 
   <!-- Public Posts Display -->
@@ -34,7 +39,7 @@
   </div>
 
   <script>
-    // Your EXACT Firebase config from the screenshot
+    // Your Firebase config (from your screenshot)
     const firebaseConfig = {
       apiKey: "Aktxs.ysnet2v0g8bq3 (Unintr4)aTmdTm0xy9hmgz",
       authDomain: "infopublic-5x9fb.firebaseapp.com",
@@ -48,7 +53,7 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Admin Login
+    // Login Function
     function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -57,8 +62,18 @@
         .then(() => {
           document.getElementById("adminLogin").style.display = "none";
           document.getElementById("postEditor").style.display = "block";
+          loadPosts();
         })
         .catch(error => alert("Error: " + error.message));
+    }
+
+    // Logout Function
+    function logout() {
+      firebase.auth().signOut()
+        .then(() => {
+          document.getElementById("adminLogin").style.display = "block";
+          document.getElementById("postEditor").style.display = "none";
+        });
     }
 
     // Publish Post
@@ -71,8 +86,22 @@
         content: content,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       })
-      .then(() => alert("Post published!"))
+      .then(() => {
+        alert("Posted!");
+        document.getElementById("postTitle").value = "";
+        document.getElementById("postContent").value = "";
+        loadPosts();
+      })
       .catch(error => alert("Error: " + error));
+    }
+
+    // Delete Post
+    function deletePost(postId) {
+      if (confirm("Delete this post?")) {
+        db.collection("posts").doc(postId).delete()
+          .then(() => loadPosts())
+          .catch(error => alert("Error: " + error));
+      }
     }
 
     // Load Posts
@@ -89,6 +118,7 @@
                 <h3>${post.title}</h3>
                 <p>${post.content}</p>
                 <small>${post.timestamp?.toDate().toLocaleString()}</small>
+                <button onclick="deletePost('${doc.id}')">Delete</button>
               </div>
             `;
           });

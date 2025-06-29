@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InfoPulse NG - Admin Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Roboto', sans-serif; margin: 0; background: #f5f5f5; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #1f2937; color: white; }
+    nav { display: none; flex-direction: column; background: #374151; position: absolute; top: 60px; right: 10px; padding: 1rem; border-radius: 8px; }
+    nav.show { display: flex; }
+    .container { padding: 2rem; }
+    .hidden { display: none; }
+    input, select, textarea { display: block; width: 100%; margin-bottom: 1rem; padding: 0.5rem; }
+    button { padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 5px; }
+    .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .hamburger { cursor: pointer; font-size: 1.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>InfoPulse NG</h1>
+    <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
+    <nav id="adminNav">
+      <button onclick="logout()">Logout</button>
+    </nav>
+  </header>
+
+  <div class="container hidden" id="loginContainer">
+    <h2>Admin Login</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="container hidden" id="dashboard">
+    <h2>Post New Content</h2>
+    <input type="text" id="title" placeholder="Article Title" />
+    <textarea id="content" placeholder="Content"></textarea>
+    <input type="text" id="keywords" placeholder="Keywords (comma-separated)" />
+    <input type="text" id="imageUrl" placeholder="Image URL" />
+    <select id="category">
+      <option value="Tech">Tech</option>
+      <option value="Health">Health</option>
+      <option value="Finance">Finance</option>
+      <option value="Education">Education</option>
+      <option value="Travel">Travel</option>
+      <option value="Food">Food</option>
+      <option value="Fashion">Fashion</option>
+      <option value="Lifestyle">Lifestyle</option>
+    </select>
+    <button onclick="postContent()">Upload Article</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoEZVBqBGgT0Hn6Yq1JfmdTmOVJp8n4gc",
+      authDomain: "infopulse-5a276.firebaseapp.com",
+      projectId: "infopulse-5a276",
+      storageBucket: "infopulse-5a276.appspot.com",
+      messagingSenderId: "568547160991",
+      appId: "1:568547160991:web:75f63f78408500a2d883aa",
+      measurementId: "G-LMHT21R9GW"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const adminEmail = "admin@example.com"; // Replace with your actual admin email
+
+    auth.onAuthStateChanged(user => {
+      if (user && user.email === adminEmail) {
+        document.getElementById("dashboard").classList.remove("hidden");
+        document.getElementById("loginContainer").classList.add("hidden");
+      } else {
+        document.getElementById("dashboard").classList.add("hidden");
+        document.getElementById("loginContainer").classList.remove("hidden");
+      }
+    });
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password).catch(alert);
+    }
+
+    function logout() {
+      auth.signOut();
+    }
+
+    function toggleMenu() {
+      document.getElementById("adminNav").classList.toggle("show");
+    }
+
+    function postContent() {
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+      const keywords = document.getElementById("keywords").value.split(',').map(k => k.trim());
+      const imageUrl = document.getElementById("imageUrl").value;
+      const category = document.getElementById("category").value;
+
+      db.collection("articles").add({
+        title, content, keywords, imageUrl, category,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => alert("Article uploaded!"))
+        .catch(err => alert("Error: " + err.message));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard - infoPulseNG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Admin Panel - infoPulseNG</h1>
+  </header>
+
+  <div class="container">
+    <h2>Post a New Article</h2>
+    <form id="articleForm">
+      <input type="text" id="title" placeholder="Article Title" required />
+      <textarea id="content" placeholder="Article Content" required></textarea>
+      <input type="text" id="keywords" placeholder="Keywords (comma separated)" required />
+      <input type="text" id="category" placeholder="Category" required />
+      <input type="text" id="imageUrl" placeholder="Image URL" required />
+      <button type="submit">Publish</button>
+    </form>
+    <p id="status"></p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <script type="module">
+    import { firebaseConfig } from './firebase-config.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("articleForm");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+      const keywords = document.getElementById("keywords").value;
+      const category = document.getElementById("category").value;
+      const imageUrl = document.getElementById("imageUrl").value;
+
+      try {
+        await addDoc(collection(db, "articles"), {
+          title,
+          content,
+          keywords,
+          category,
+          imageUrl,
+          timestamp: serverTimestamp()
+        });
+        status.innerText = "Article published!";
+        form.reset();
+      } catch (err) {
+        status.innerText = "Error publishing article.";
+      }
+    });
+  </script>
+</body>
+</html>

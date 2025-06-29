@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>infoPulseNG - Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="infoPulseNG" class="logo" />
+    <button class="hamburger" onclick="toggleLogin()">☰</button>
+    <div id="loginForm" class="login-form hidden">
+      <input type="email" id="email" placeholder="Admin Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <p id="loginError" class="error"></p>
+    </div>
+  </header>
+
+  <div class="container" id="articles-container">
+    <h2>Latest Articles</h2>
+    <div id="articles" class="grid"></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <script type="module">
+    import { firebaseConfig } from './firebase-config.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const adminEmail = "akinpeluusman2018@gmail.com";
+
+    async function loadArticles() {
+      const q = query(collection(db, "articles"), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      const container = document.getElementById("articles");
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="\${data.imageUrl}" />
+          <h3>\${data.title}</h3>
+          <p><strong>Category:</strong> \${data.category}</p>
+          <p>\${data.content.substring(0, 100)}...</p>
+          <small><strong>Keywords:</strong> \${data.keywords}</small>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    loadArticles();
+
+    window.toggleLogin = function () {
+      document.getElementById("loginForm").classList.toggle("hidden");
+    };
+
+    window.login = function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          if (email === adminEmail) {
+            window.location.href = "admin.html";
+          } else {
+            document.getElementById("loginError").innerText = "Not authorized.";
+          }
+        })
+        .catch((error) => {
+          document.getElementById("loginError").innerText = error.message;
+        });
+    };
+  </script>
+</body>
+</html>
